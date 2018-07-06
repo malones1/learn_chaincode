@@ -60,6 +60,7 @@ func HelloServer(w http.ResponseWriter, req *http.Request) {
 func AddVoteHandler(w http.ResponseWriter, req *http.Request) {
 	AddVote()
 	io.WriteString(w, "add vote...")
+	fmt.Println(req.Method)
 }
 
 func AddVote() {
