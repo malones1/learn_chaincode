@@ -63,7 +63,6 @@ func AddVoteHandler(w http.ResponseWriter, req *http.Request) {
 }
 
 func AddVote() {
-	Init()
 	var v Voting
 	var qs [3]Question
 	// ---
