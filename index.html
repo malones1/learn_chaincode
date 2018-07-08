@@ -24,6 +24,12 @@
       <h2>Блокчейн голосование</h2>
       <div id="root"></div>
     </div>
+    <style type="text/css">
+      button.b {
+        width: 100px;
+        margin: 5px;
+      }
+    </style>
     <script type="text/babel">
 
       function formatDate(d) {
@@ -50,7 +56,6 @@
                 isLoaded: true,
                 items: result
               });
-              console.log(result);
             },
             (error) => {
               this.setState({
@@ -69,15 +74,22 @@
             return <div>Loading...</div>;
           } else {
             return (
-              <ul>
+              <ul className="list-group border-0">
                 {items.map(item => (
-                  <li key={item.Id}>
-                    id: {item.Id}, тема: {item.Name}, проголосовать до {formatDate(item.Deadline)}
-                    <ul>
-                      {item.Questions.map(q => (
-                        <li key={q.Id}>{q.Name}</li>
-                      ))}
-                    </ul>
+                  <li className="list-group-item border-0" key={item.Id}>
+                    <a data-toggle="collapse" href={"#collapse_" + item.Id} role="button" aria-expanded="false" aria-controls={"collapse_" + item.Id}>
+                      {item.Name}
+                    </a>
+                    <div className="collapse" id={"collapse_" + item.Id}>
+                      <div className="card card-body">
+                        id: {item.Id}, проголосовать до {formatDate(item.Deadline)} <br/>
+                        <div>
+                        {item.Questions.map(q => (
+                          <button type="button" key={q.Id} className="btn btn-primary b">{q.Name}</button>
+                        ))}
+                        </div>
+                      </div>
+                    </div>
                   </li>
                 ))}
               </ul>
