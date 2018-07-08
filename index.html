@@ -2,30 +2,92 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>Hello World</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Блокчейн голосование</title>
     <script src="https://unpkg.com/react@16/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
 
     <!-- Don't use this in production: -->
     <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
   </head>
   <body>
-    <div id="root"></div>
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
+
+    <div class="container-fluid">
+      <h2>Блокчейн голосование</h2>
+      <div id="root"></div>
+    </div>
     <script type="text/babel">
+
+      function formatDate(d) {
+        d = new Date(d);
+        return d.toLocaleDateString();
+      }
 
       class Welcome extends React.Component {
         constructor(props) {
           super(props);
-          this.state = {date: new Date()};
+          this.state = {
+            error: null,
+            isLoaded: false,
+            items: []
+          };
+        }
+
+        componentDidMount() {
+          fetch("http://localhost:7777/vote", {method: 'GET'})
+          .then(res => res.json())
+          .then(
+            (result) => {
+              this.setState({
+                isLoaded: true,
+                items: result
+              });
+              console.log(result);
+            },
+            (error) => {
+              this.setState({
+                isLoaded: true,
+                error
+              });
+            }
+          );
         }
 
         render() {
-          return <h1>Hello, {this.props.name}!</h1>
+          const { error, isLoaded, items } = this.state;
+          if (error) {
+            return <div>Error: {error.message}</div>;
+          } else if (!isLoaded) {
+            return <div>Loading...</div>;
+          } else {
+            return (
+              <ul>
+                {items.map(item => (
+                  <li key={item.Id}>
+                    id: {item.Id}, тема: {item.Name}, проголосовать до {formatDate(item.Deadline)}
+                    <ul>
+                      {item.Questions.map(q => (
+                        <li key={q.Id}>{q.Name}</li>
+                      ))}
+                    </ul>
+                  </li>
+                ))}
+              </ul>
+            );
+          }
         }
       }
 
       ReactDOM.render(
-        <Welcome name="Roman"/>,
+        <Welcome />,
         document.getElementById('root')
       );
 

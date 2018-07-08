@@ -7,6 +7,7 @@ import (
 	"github.com/satori/go.uuid"
 	"io"
 	"net/http"
+	"os"
 )
 
 type Option struct {
@@ -80,6 +81,32 @@ func AddVote() {
 	v.Questions = qs[:3]
 	s.v = append(s.v, v)
 }
+
+func IndexHandler(w http.ResponseWriter, req *http.Request) {
+	file, err := os.Open("index.html")
+	if err != nil {
+		return
+	}
+	defer file.Close()
+
+	stat, err := file.Stat()
+	if err != nil {
+		return
+	}
+
+	bs := make([]byte, stat.Size())
+	_, err = file.Read(bs)
+	if err != nil {
+		return
+	}
+
+	w.Header().Set(
+  	"Content-Type",
+    "text/html",
+  )
+  io.WriteString(w, string(bs))
+}
+
 // +++
 
 func Init() {
@@ -92,11 +119,11 @@ func Init() {
 		v.Name = "V1"
 		v.Deadline = time.Now()
 		v.Voters = []Voter{}
-	
+
 		qs[0] = Question{getUuid(), "Q1", []Option{ Option{"1", "O1"}, Option{"2", "O2"}, Option{"3", "O3"} }}
 		qs[1] = Question{getUuid(), "Q2", []Option{ Option{"1", "O1"}, Option{"2", "O2"}, Option{"3", "O3"} }}
 		qs[2] = Question{getUuid(), "Q3", []Option{ Option{"1", "O1"}, Option{"2", "O2"}, Option{"3", "O3"} }}
-	
+
 		v.Questions = qs[:3]
 		s.v = append(s.v, v)
 		// +++
@@ -107,11 +134,11 @@ func Init() {
 		v.Name = "V2"
 		v.Deadline = time.Now()
 		v.Voters = []Voter{}
-	
+
 		qs[0] = Question{getUuid(), "Q1", []Option{ Option{"1", "O1"}, Option{"2", "O2"}, Option{"3", "O3"} }}
 		qs[1] = Question{getUuid(), "Q2", []Option{ Option{"1", "O1"}, Option{"2", "O2"}, Option{"3", "O3"} }}
 		qs[2] = Question{getUuid(), "Q3", []Option{ Option{"1", "O1"}, Option{"2", "O2"}, Option{"3", "O3"} }}
-	
+
 		v.Questions = qs[:3]
 		s.v = append(s.v, v)
 		// +++
@@ -132,8 +159,9 @@ var s State = State{}
 
 func main() {
 	Init()
-	
+
 	http.HandleFunc("/vote", HelloServer)
-	http.HandleFunc("/add", AddVoteHandler)	
+	http.HandleFunc("/add", AddVoteHandler)
+	http.HandleFunc("/i", IndexHandler)
 	http.ListenAndServe(":7777", nil)
 }
