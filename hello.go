@@ -112,7 +112,7 @@ func IndexHandler(w http.ResponseWriter, req *http.Request) {
 func Init() {
 	if len(s.v) == 0 {
 		var v Voting
-		var qs [3]Question
+
 		// ---
 		v = Voting{}
 		v.Id = getUuid()
@@ -120,11 +120,11 @@ func Init() {
 		v.Deadline = time.Now()
 		v.Voters = []Voter{}
 
-		qs[0] = Question{getUuid(), "Q1", []Option{ Option{"1", "O1"}, Option{"2", "O2"}, Option{"3", "O3"} }}
-		qs[1] = Question{getUuid(), "Q2", []Option{ Option{"1", "O1"}, Option{"2", "O2"}, Option{"3", "O3"} }}
-		qs[2] = Question{getUuid(), "Q3", []Option{ Option{"1", "O1"}, Option{"2", "O2"}, Option{"3", "O3"} }}
-
-		v.Questions = qs[:3]
+		v.Questions = []Question{
+				Question{getUuid(), "123Q1", []Option{ Option{"1", "O1"}, Option{"2", "O2"}, Option{"3", "O3"} }},
+				Question{getUuid(), "123Q2", []Option{ Option{"1", "O1"}, Option{"2", "O2"}, Option{"3", "O3"} }},
+				Question{getUuid(), "123Q3", []Option{ Option{"1", "O1"}, Option{"2", "O2"}, Option{"3", "O3"} }},
+		}
 		s.v = append(s.v, v)
 		// +++
 
@@ -135,11 +135,11 @@ func Init() {
 		v.Deadline = time.Now()
 		v.Voters = []Voter{}
 
-		qs[0] = Question{getUuid(), "Q1", []Option{ Option{"1", "O1"}, Option{"2", "O2"}, Option{"3", "O3"} }}
-		qs[1] = Question{getUuid(), "Q2", []Option{ Option{"1", "O1"}, Option{"2", "O2"}, Option{"3", "O3"} }}
-		qs[2] = Question{getUuid(), "Q3", []Option{ Option{"1", "O1"}, Option{"2", "O2"}, Option{"3", "O3"} }}
-
-		v.Questions = qs[:3]
+		v.Questions = []Question{
+				Question{getUuid(), "456Q1", []Option{ Option{"1", "O1"}, Option{"2", "O2"}, Option{"3", "O3"} }},
+				Question{getUuid(), "456Q2", []Option{ Option{"1", "O1"}, Option{"2", "O2"}, Option{"3", "O3"} }},
+				Question{getUuid(), "456Q3", []Option{ Option{"1", "O1"}, Option{"2", "O2"}, Option{"3", "O3"} }},
+		}
 		s.v = append(s.v, v)
 		// +++
 

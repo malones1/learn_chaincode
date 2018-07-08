@@ -25,9 +25,12 @@
       <div id="root"></div>
     </div>
     <style type="text/css">
-      button.b {
+      .w-100 {
         width: 100px;
-        margin: 5px;
+      }
+
+      div.w-100 {
+        padding-left: 1.25rem;
       }
     </style>
     <script type="text/babel">
@@ -83,10 +86,16 @@
                     <div className="collapse" id={"collapse_" + item.Id}>
                       <div className="card card-body">
                         id: {item.Id}, проголосовать до {formatDate(item.Deadline)} <br/>
-                        <div>
+                        <ul className="list-group border-0">
                         {item.Questions.map(q => (
-                          <button type="button" key={q.Id} className="btn btn-primary b">{q.Name}</button>
+                          <li className="list-group-item border-0" key={q.Id}>{q.Name}
+                          <select className="form-control">
+                            {q.Options.map(o => (<option key={o.Id}>{o.Name} </option>))}
+                          </select></li>
                         ))}
+                        </ul>
+                        <div className="w-100">
+                          <button type="button" className="btn btn-success">Success</button>
                         </div>
                       </div>
                     </div>
