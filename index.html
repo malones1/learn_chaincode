@@ -34,7 +34,7 @@
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
-      <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+      <ul class="navbar-nav mr-auto">
         <li class="nav-item active">
           <a class="nav-link" href="#">
             Список
@@ -42,7 +42,7 @@
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#" onclick="fetch('http://192.168.34.53:7777/add').then(() => {alert('Голосование успешно создано.')})">
+          <a class="nav-link" href="#" onclick="fetch(serverAddr() + '/add').then(() => {alert('Голосование успешно создано.')})">
             Добавить</a>
         </li>
         <li class="nav-item">
@@ -50,17 +50,17 @@
         </li>
       </ul>
         <div class="dropdown">
-          <a class="mr-2" href="#" data-toggle="dropdown" id="dropdownMenuLink" aria-haspopup="true" aria-expanded="false">
+          <a class="mr-2" href="#collapseExample1" data-toggle="collapse" id="dropdownMenuLink" aria-expanded="false" aria-controls="collapseExample1">
             <img src="/static/svg/gear.svg" width="20" height="20" alt="">
           </a>
-          <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuLink">
+          <!--<div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuLink">
             <a class="dropdown-item" href="#">Action</a>
             <a class="dropdown-item" href="#">Another action</a>
-            <a class="dropdown-item" href="#">Something else here</a>
+            <a class="dropdown-item" href="#">Something else here</a>-->
           </div>
         </div>
         <div class="dropdown">
-            <a href="#"  data-toggle="dropdown" id="dropdownMenuLink1" aria-haspopup="true" aria-expanded="false">
+            <a href="#" data-toggle="dropdown" id="dropdownMenuLink1" aria-expanded="false">
                 <img src="/static/svg/person.svg" width="20" height="20" alt="">
               </a>
             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuLink1">
@@ -73,8 +73,15 @@
   </nav>
   <div class="container-fluid bg">
     <div class="row">
-      <div class="col">
+      <div class="col-md-10">
         <div id="root" class="bg"></div>
+      </div>
+      <div class="col-md-2 pr-0" style="height: 100%;">
+        <div class="collapse" id="collapseExample1">
+          <div class="card card-body border-0 rounded-0" style="height: 100%; position: fixed;">
+            This is some text within a card body.
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -107,7 +114,8 @@
       }
 
       const serverAddr = function() {
-          return "http://192.168.34.53:7777";
+          //return "http://192.168.34.53:7777";
+          return "http://localhost:7777";
       }
 
       class Welcome extends React.Component {
@@ -118,7 +126,7 @@
             isLoaded: false,
             items: []
           };
-        }    
+        }
 
         componentDidMount() {
           fetch(serverAddr() + "/vote", {method: 'GET'})
