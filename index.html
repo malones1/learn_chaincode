@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Блокчейн голосование</title>
+    <title>Голосование</title>
     <script src="https://unpkg.com/react@16/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
 
@@ -19,25 +19,70 @@
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
-
-    <div class="container-fluid">
-      <h2>Блокчейн голосование</h2>
-      <div id="root"></div>
+    <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #ffffff;">
+      <a class="navbar-brand" href="#">Голосование</a>
+      <div class="collapse navbar-collapse" id="navbarText">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item active">
+            <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Features</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Pricing</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+    <div class="container-fluid bg">
+      
+      <div class="row">
+        <div class="col-1">
+          <ul class="navbar-nav">
+            <li class="nav-item"><a class="nav-link" href="#">Active</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">Link</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">Link</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">Disabled</a></li>
+          </ul>
+        </div>
+        <div class="col">
+          <div id="root" class="bg"></div>
+        </div>
+      </div>
     </div>
     <style type="text/css">
       .w-100 {
         width: 100px;
       }
+      
+      .bg {
+        background-color: #e6e6e6;
+      }
+
+      .clrwhite {
+        background-color: #e6e6e6;
+      }
 
       div.w-100 {
         padding-left: 1.25rem;
       }
+
+      html {
+        background-color: #e6e6e6;
+      }
+
+      
     </style>
     <script type="text/babel">
 
       function formatDate(d) {
         d = new Date(d);
         return d.toLocaleDateString();
+      }
+
+      const serverAddr = function() {
+          return "http://192.168.34.53:7777";
       }
 
       class Welcome extends React.Component {
@@ -48,10 +93,10 @@
             isLoaded: false,
             items: []
           };
-        }
+        }    
 
         componentDidMount() {
-          fetch("http://localhost:7777/vote", {method: 'GET'})
+          fetch(serverAddr() + "/vote", {method: 'GET'})
           .then(res => res.json())
           .then(
             (result) => {
@@ -79,12 +124,12 @@
             return (
               <ul className="list-group border-0">
                 {items.map(item => (
-                  <li className="list-group-item border-0" key={item.Id}>
+                  <li className="list-group-item border-0 bg" key={item.Id}>
                     <a data-toggle="collapse" href={"#collapse_" + item.Id} role="button" aria-expanded="false" aria-controls={"collapse_" + item.Id}>
                       {item.Name}
                     </a>
                     <div className="collapse" id={"collapse_" + item.Id}>
-                      <div className="card card-body">
+                      <div className="card card-body p-2">
                         id: {item.Id}, проголосовать до {formatDate(item.Deadline)} <br/>
                         <ul className="list-group border-0">
                         {item.Questions.map(q => (
@@ -95,7 +140,7 @@
                         ))}
                         </ul>
                         <div className="w-100">
-                          <button type="button" className="btn btn-success">Success</button>
+                          <button type="button" className="btn btn-outline-info">Отправить</button>
                         </div>
                       </div>
                     </div>

@@ -163,5 +163,6 @@ func main() {
 	http.HandleFunc("/vote", HelloServer)
 	http.HandleFunc("/add", AddVoteHandler)
 	http.HandleFunc("/i", IndexHandler)
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	http.ListenAndServe(":7777", nil)
 }
