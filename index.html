@@ -1,78 +1,93 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Голосование</title>
-    <script src="https://unpkg.com/react@16/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
 
-    <!-- Don't use this in production: -->
-    <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Голосование</title>
+  <script src="https://unpkg.com/react@16/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
 
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
-  </head>
-  <body>
-    <!-- Optional JavaScript -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
-    <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #ffffff;">
-      <a class="navbar-brand" href="#">
-        <img src="/static/svg/checklist.svg" width="20" height="20" class="d-inline-block" alt="">
-        Голосование
-      </a>
-      <div class="collapse navbar-collapse" id="navbarText">
-        <ul class="navbar-nav mr-auto">
-          <li class="nav-item active">
-            <a class="nav-link" href="#">
-              Список <span class="sr-only">(current)</span></a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">
-                Добавить</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">Отчет</a>
-          </li>
-        </ul>
-        <a href="#"><img src="/static/svg/gear.svg" width="20" height="20" class="d-inline-block mr-2" alt=""></a>
-        <a href="#"><img src="/static/svg/person.svg" width="20" height="20" class="d-inline-block" alt=""></a>
-      </div>
-    </nav>
-    <div class="container-fluid bg">
-      <div class="row">
-        <div class="col">
-          <div id="root" class="bg"></div>
-        </div>
+  <!-- Don't use this in production: -->
+  <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB"
+    crossorigin="anonymous">
+</head>
+
+<body>
+  <!-- Optional JavaScript -->
+  <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+    crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+    crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T"
+    crossorigin="anonymous"></script>
+  <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #ffffff;">
+    <a class="navbar-brand" href="#">
+      <img src="/static/svg/checklist.svg" width="20" height="20" class="d-inline-block" alt=""> Голосование
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo01" aria-controls="navbarTogglerDemo01"
+      aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
+      <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+        <li class="nav-item active">
+          <a class="nav-link" href="#">
+            Список
+            <span class="sr-only">(current)</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#" onclick="fetch('http://192.168.34.53:7777/add').then(() => {console.log('Success...');})">
+            Добавить</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Отчет</a>
+        </li>
+      </ul>
+      <div class="navbar-text my-2 my-lg-0">
+        <a class="mr-2" href="#">
+          <img src="/static/svg/gear.svg" width="20" height="20" alt="">
+        </a>
+        <a href="#">
+          <img src="/static/svg/person.svg" width="20" height="20" alt="">
+        </a>
       </div>
     </div>
-    <style type="text/css">
-      .w-100 {
-        width: 100px;
-      }
-      
-      .bg {
-        background-color: #e6e6e6;
-      }
+  </nav>
+  <div class="container-fluid bg">
+    <div class="row">
+      <div class="col">
+        <div id="root" class="bg"></div>
+      </div>
+    </div>
+  </div>
+  <style type="text/css">
+    .w-100 {
+      width: 100px;
+    }
 
-      .clrwhite {
-        background-color: #e6e6e6;
-      }
+    .bg {
+      background-color: #e6e6e6;
+    }
 
-      div.w-100 {
-        padding-left: 1.25rem;
-      }
+    .clrwhite {
+      background-color: #e6e6e6;
+    }
 
-      html {
-        background-color: #e6e6e6;
-      }
+    div.w-100 {
+      padding-left: 1.25rem;
+    }
 
-      
-    </style>
-    <script type="text/babel">
+    html {
+      background-color: #e6e6e6;
+    }
+  </style>
+  <script type="text/babel">
 
       function formatDate(d) {
         d = new Date(d);
@@ -156,7 +171,7 @@
       );
 
     </script>
-    <!--
+  <!--
       Note: this page is a great way to try React but it's not suitable for production.
       It slowly compiles JSX with Babel in the browser and uses a large development build of React.
 
@@ -169,5 +184,6 @@
       You can also use React without JSX, in which case you can remove Babel:
       https://reactjs.org/docs/react-without-jsx.html
     -->
-  </body>
+</body>
+
 </html>
