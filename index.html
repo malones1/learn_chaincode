@@ -50,14 +50,9 @@
         </li>
       </ul>
         <div class="dropdown">
-          <a class="mr-2" href="#collapseExample1" data-toggle="collapse" id="dropdownMenuLink" aria-expanded="false" aria-controls="collapseExample1">
+          <a class="mr-2" href="#collapseExample1" onclick="sidebarClick1();">
             <img src="/static/svg/gear.svg" width="20" height="20" alt="">
           </a>
-          <!--<div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuLink">
-            <a class="dropdown-item" href="#">Action</a>
-            <a class="dropdown-item" href="#">Another action</a>
-            <a class="dropdown-item" href="#">Something else here</a>-->
-          </div>
         </div>
         <div class="dropdown">
             <a href="#" data-toggle="dropdown" id="dropdownMenuLink1" aria-expanded="false">
@@ -71,21 +66,26 @@
           </div>
     </div>
   </nav>
+  <div id="sidebar1" class="sidebar" style="background-color: #fff;" onclick="sidebarClick();">
+    <button type="button" class="close mr-3 mt-3" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
   <div class="container-fluid bg">
     <div class="row">
-      <div class="col-md-10">
-        <div id="root" class="bg"></div>
-      </div>
-      <div class="col-md-2 pr-0" style="height: 100%;">
-        <div class="collapse" id="collapseExample1">
-          <div class="card card-body border-0 rounded-0" style="height: 100%; position: fixed;">
-            This is some text within a card body.
-          </div>
+      <div class="col-md-6 col-sm-7">
+        <div id="root" class="bg pb-3">
         </div>
       </div>
     </div>
   </div>
   <style type="text/css">
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 0px;
+      }
+    }
+
     .w-100 {
       width: 100px;
     }
@@ -105,8 +105,26 @@
     html {
       background-color: #e6e6e6;
     }
+
+    .sidebar {
+      transition: 0.5s;
+      height: 100%;
+      position: fixed;
+      right: 0px;
+      width: 300px;
+      z-index: 1;
+      overflow-x: hidden;
+    }
   </style>
   <script type="text/babel">
+
+      function sidebarClick() {
+        document.getElementById("sidebar1").style.width = "0";
+      }
+
+      function sidebarClick1() {
+        document.getElementById("sidebar1").style.width = "300px";
+      }
 
       function formatDate(d) {
         d = new Date(d);
@@ -147,7 +165,7 @@
           );
         }
 
-        render() {
+        /**render() {
           const { error, isLoaded, items } = this.state;
           if (error) {
             return <div>Error: {error.message}</div>;
@@ -182,7 +200,39 @@
               </ul>
             );
           }
+        }**/
+
+        render() {
+          const { error, isLoaded, items } = this.state;
+          if (error) {
+            return <div>Error: {error.message}</div>;
+          } else if (!isLoaded) {
+            return <div>Loading...</div>;
+          } else {
+            return (
+              <div>
+                {items.map(item => (
+                  <div className="card card-body mt-3" key={item.Id}>
+                    id: {item.Id}, проголосовать до {formatDate(item.Deadline)} <br/>
+                    <ul className="list-group border-0">
+                      {item.Questions.map(q => (
+                        <li className="list-group-item border-0" key={q.Id}>{q.Name}
+                          <select className="form-control">
+                            {q.Options.map(o => (<option key={o.Id}>{o.Name} </option>))}
+                          </select>
+                        </li>
+                        ))}
+                    </ul>
+                    <div className="w-100">
+                      <button type="button" className="btn btn-outline-info">Отправить</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            );
+          }
         }
+
       }
 
       ReactDOM.render(
