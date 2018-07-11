@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"bytes"
 )
 
 type Option struct {
@@ -160,9 +161,52 @@ var s State = State{}
 func main() {
 	Init()
 
-	http.HandleFunc("/vote", HelloServer)
-	http.HandleFunc("/add", AddVoteHandler)
-	http.HandleFunc("/i", IndexHandler)
-	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
-	http.ListenAndServe(":7777", nil)
+	mux := http.NewServeMux();
+	mux.HandleFunc("/vote", HelloServer)
+
+	mux.HandleFunc("/toVote", func (w http.ResponseWriter, req *http.Request) {
+		//io.WriteString(w, "Hello...")
+
+		if (req.Method == "POST") {
+			var f interface{}
+			var b bytes.Buffer
+
+			buf := make([]byte, 4)
+			for {
+				n, err := req.Body.Read(buf)
+				if (n > 0) {
+					b.Write(buf[:n])
+				}
+				
+				if (err == io.EOF) {
+					break
+				}
+			}
+
+			err := json.Unmarshal(b.Bytes(), &f)
+			if (err != nil) {
+				fmt.Println(err)
+			} else {
+				m := f.(map[string]interface{})
+				fmt.Printf("Username: %v, vote: %v\n", m["username"], m["vote"])
+			}
+
+			fmt.Printf(b.String())
+		} else {
+			http.NotFound(w, req)
+		}
+
+		//fmt.Fprintf(w, "Hello... %v", req.Method)
+	})
+
+	mux.HandleFunc("/", func (w http.ResponseWriter, req *http.Request) {
+		if (req.URL.Path != "/") {
+			http.NotFound(w, req)
+		} else {
+			IndexHandler(w, req)
+		}
+	})
+	mux.HandleFunc("/add", AddVoteHandler)
+	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
+	http.ListenAndServe(":7777", mux)
 }

@@ -100,10 +100,6 @@
       background-color: #e6e6e6;
     }
 
-    .clrwhite {
-      background-color: #e6e6e6;
-    }
-
     div.w-100 {
       padding-left: 1.25rem;
     }
@@ -130,6 +126,13 @@
 
       function sidebarClick1() {
         document.getElementById("sidebar1").style.width = "300px";
+      }
+
+      function voteOnClick(e) {
+        var data = JSON.stringify({username: "orticon", vote: "1"})
+        fetch(serverAddr() + "/toVote", { method: 'POST', body: data })
+        .then(res => res.text())
+        .then(text => (console.log(text)));
       }
 
       function formatDate(d) {
@@ -230,7 +233,7 @@
                         ))}
                     </ul>
                     <div className="w-100">
-                      <button type="button" className="btn btn-outline-info">Отправить</button>
+                      <button type="button" className="btn btn-outline-info" onClick={voteOnClick}>Отправить</button>
                     </div>
                   </div>
                 ))}
