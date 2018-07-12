@@ -162,9 +162,9 @@
           });
         }
 
-        handleVoteClick(e, voteId) {
+        handleVoteClick(e, votingId) {
           var t = e.target;
-          var data = JSON.stringify({username: "orticon", answers: this.state.answers})
+          var data = JSON.stringify({username: "orticon", votingId: votingId, answers: this.state.answers[votingId]})
           fetch(serverAddr() + "/toVote", { method: 'POST', body: data })
           .then(res => res.text())
           .then(text => (console.log(text)));
