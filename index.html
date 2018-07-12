@@ -150,16 +150,33 @@
           this.handleOptionChange = this.handleOptionChange.bind(this);          
         }
 
-        handleOptionChange(e, qId) {
-          console.log(qId + " - " + e.target.value);
+        handleOptionChange(e, votingId, qId) {
+          var target = e.target;
+          var value = target.value;
+          var name = target.name;
+
+          var answers = this.state.answers;
+          answers[votingId][qId] = value;
+          this.setState({
+            answers: answers
+          });
         }
 
         handleVoteClick(e, voteId) {
           var t = e.target;
-          var data = JSON.stringify({username: "orticon", voteId: voteId})
+          var data = JSON.stringify({username: "orticon", answers: this.state.answers})
           fetch(serverAddr() + "/toVote", { method: 'POST', body: data })
           .then(res => res.text())
           .then(text => (console.log(text)));
+        }
+
+        getSelect(votingId, questionId) {
+          var value = this.state.answers[votingId];
+          if (value == undefined) {
+            return undefined; 
+          } else {
+            return value[questionId];
+          }
         }
 
         componentDidMount() {
@@ -167,10 +184,19 @@
           .then(res => res.json())
           .then(
             (result) => {
+              var answers = {}
+              result.map(item => {
+                answers[item.Id] = {};
+                item.Questions.map(q => {
+                  answers[item.Id][q.Id] = q.Options.length > 0 ? q.Options[0].Id : undefined;  
+                });
+                
+              });
               this.setState({
                 isLoaded: true,
-                items: result
-              });
+                items: result,
+                answers: answers
+              });             
             },
             (error) => {
               this.setState({
@@ -196,8 +222,8 @@
                     <ul className="list-group border-0">
                       {item.Questions.map(q => (
                         <li className="list-group-item border-0" key={q.Id}>{q.Name}
-                          <select className="form-control" onChange={(e) => this.handleOptionChange(e, q.Id)}>
-                            {q.Options.map(o => (<option key={o.Id}>{o.Name} </option>))}
+                          <select className="form-control" name={q.Id} value={this.getSelect(item.Id, q.Id)} onChange={(e) => this.handleOptionChange(e, item.Id, q.Id)}>
+                            {q.Options.map(o => (<option key={o.Id} value={o.Id}>{o.Name} </option>))}
                           </select>
                         </li>
                         ))}
