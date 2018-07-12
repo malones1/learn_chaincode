@@ -191,7 +191,7 @@ func main() {
 				fmt.Printf("Username: %v, vote: %v\n", m["username"], m["vote"])
 			}
 
-			fmt.Printf(b.String())
+			fmt.Println(b.String())
 		} else {
 			http.NotFound(w, req)
 		}
