@@ -48,7 +48,7 @@ type Voting struct {
 
 // State ...
 type State struct {
-	v []Voting
+	v []*Voting
 }
 
 func getUUID() string {
@@ -89,7 +89,7 @@ func AddVote() {
 	qs[2] = Question{getUUID(), "Q3", []Option{Option{"1", "O1"}, Option{"2", "O2"}, Option{"3", "O3"}}}
 
 	v.Questions = qs[:3]
-	s.v = append(s.v, v)
+	s.v = append(s.v, &v)
 }
 
 func IndexHandler(w http.ResponseWriter, req *http.Request) {
@@ -121,10 +121,10 @@ func IndexHandler(w http.ResponseWriter, req *http.Request) {
 
 func Init() {
 	if len(s.v) == 0 {
-		var v Voting
+		var v *Voting
 
 		// ---
-		v = Voting{}
+		v = new(Voting)
 		v.Id = getUUID()
 		v.Name = "V1"
 		v.Deadline = time.Now()
@@ -139,7 +139,7 @@ func Init() {
 		// +++
 
 		// ---
-		v = Voting{}
+		v = new(Voting)
 		v.Id = getUUID()
 		v.Name = "V2"
 		v.Deadline = time.Now()
@@ -198,10 +198,14 @@ func main() {
 				fmt.Println(err)
 			} else {
 				m := f.(map[string]interface{})
-				fmt.Printf("Username: %v, vote: %v, answers: %v\n", m["username"], m["votingId"], m["answers"])
-			}
 
-			fmt.Println(b.String())
+				for _, v := range s.v {
+					if (v.Id == m["votingId"]) {
+						fmt.Printf("VotingId: %v, voters: %v\n", v.Id, v.Voters);
+						v.Voters = append(v.Voters, Voter{"Roman", []Answer{}})
+					}
+				}
+			}
 		} else {
 			http.NotFound(w, req)
 		}
