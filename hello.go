@@ -9,7 +9,7 @@ import (
 	"os"
 	"time"
 	"github.com/satori/go.uuid"
-	"log"
+	// "log"
 )
 
 import _ "net/http/pprof"
