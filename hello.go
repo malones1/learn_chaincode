@@ -8,9 +8,11 @@ import (
 	"net/http"
 	"os"
 	"time"
-
 	"github.com/satori/go.uuid"
+	"log"
 )
+
+import _ "net/http/pprof"
 
 // Option ...
 type Option struct {
@@ -166,9 +168,14 @@ func getJSON() []byte {
 	}
 }
 
-var s = State{}
+var s = new(State)
 
 func main() {
+	// go func() {
+	// 	fmt.Println("Hello Go")
+	// 	log.Println(http.ListenAndServe("localhost:6060", nil))
+	// }()
+	
 	Init()
 
 	mux := http.NewServeMux()
