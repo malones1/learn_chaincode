@@ -117,6 +117,12 @@
       z-index: 1;
       overflow-x: hidden;
     }
+
+    .w-100 > div {
+      padding-top: 6px;
+      margin-right: 23px;
+    }
+
   </style>
   <script type="text/babel">
 
@@ -134,8 +140,9 @@
       }
 
       const serverAddr = function() {
-          return "http://localhost:7777";
-      }
+          //return "http://localhost:7777";
+          return "http://192.168.34.60:7777";
+        }
 
       class Welcome extends React.Component {
         constructor(props) {
@@ -143,7 +150,8 @@
           this.state = {
             error: null,
             isLoaded: false,
-            items: []
+            items: [],
+            voters: {}
           };
 
           this.handleVoteClick = this.handleVoteClick.bind(this);
@@ -166,8 +174,24 @@
           var t = e.target;
           var data = JSON.stringify({username: "orticon", votingId: votingId, answers: this.state.answers[votingId]})
           fetch(serverAddr() + "/toVote", { method: 'POST', body: data })
-          .then(res => res.text())
-          .then(text => (console.log(text)));
+          .then((response) => {
+              return new Promise((res, rej) => {
+                if (response.ok) {
+                  res();
+                } else {
+                  rej("Ошибка");
+                }
+              });
+          })
+          .then(() => {
+            var voters = this.state.voters;
+            if (votingId in this.state.voters) {
+              voters[votingId] += 1;
+            } else {
+              voters[votingId] = 1;
+            }
+            this.setState({voters: voters});
+          }, err => (console.log(err)));
         }
 
         getSelect(votingId, questionId) {
@@ -185,17 +209,19 @@
           .then(
             (result) => {
               var answers = {}
+              var voters = {}
               result.map(item => {
                 answers[item.Id] = {};
                 item.Questions.map(q => {
                   answers[item.Id][q.Id] = q.Options.length > 0 ? q.Options[0].Id : undefined;  
                 });
-                
+                voters[item.Id] = item.Voters.length;  
               });
               this.setState({
                 isLoaded: true,
                 items: result,
-                answers: answers
+                answers: answers,
+                voters: voters
               });             
             },
             (error) => {
@@ -230,6 +256,7 @@
                     </ul>
                     <div className="w-100">
                       <button type="button" className="btn btn-outline-info" onClick={(e) => this.handleVoteClick(e, item.Id)}>Отправить</button>
+                      <div className="float-right">Проголосовали человек: {this.state.voters[item.Id]}</div>
                     </div>
                   </div>
                 ))}
