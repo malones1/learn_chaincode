@@ -73,11 +73,18 @@
   </div>
   <div class="container-fluid bg">
     <div class="row">
-      <div class="col-md-6 col-sm-7">
+      <div class="col-md-7 col-sm-7">
         <div id="root" class="bg pb-3">
         </div>
       </div>
     </div>
+  </div>
+  <div class="container-fluid bg">
+      <div class="row">
+        <div class="col-md-7 col-sm-7">
+            <div id="voting"></div>
+        </div>
+      </div>
   </div>
   <style type="text/css">
     @media only screen and (max-width: 768px) {
@@ -140,39 +147,30 @@
       }
 
       const serverAddr = function() {
-          //return "http://localhost:7777";
-          return "http://192.168.34.60:7777";
+          return "http://localhost:7777";
+          // return "http://192.168.34.60:7777";
         }
-
-      class Welcome extends React.Component {
+        
+      class Voting extends React.Component {
         constructor(props) {
           super(props);
           this.state = {
-            error: null,
-            isLoaded: false,
-            items: [],
-            voters: {}
+            voting: this.props.voting,
+            answers: {},
+            voters: this.props.voting.Voters.length
           };
-
-          this.handleVoteClick = this.handleVoteClick.bind(this);
-          this.handleOptionChange = this.handleOptionChange.bind(this);          
         }
 
-        handleOptionChange(e, votingId, qId) {
-          var target = e.target;
-          var value = target.value;
-          var name = target.name;
-
-          var answers = this.state.answers;
-          answers[votingId][qId] = value;
-          this.setState({
-            answers: answers
-          });
+        getSelect(question) {
+          if (question.Id in this.state.answers) {
+            return this.state.answers[question.Id];
+          } else {
+            return question.Options.length > 0 ? question.Options[0].Id : "*";
+          }
         }
 
-        handleVoteClick(e, votingId) {
-          var t = e.target;
-          var data = JSON.stringify({username: "orticon", votingId: votingId, answers: this.state.answers[votingId]})
+        handleVoteClick(e) {
+          var data = JSON.stringify({username: "orticon", votingId: this.state.voting.Id, answers: this.state.answers})
           fetch(serverAddr() + "/toVote", { method: 'POST', body: data })
           .then((response) => {
               return new Promise((res, rej) => {
@@ -185,13 +183,75 @@
           })
           .then(() => {
             var voters = this.state.voters;
-            if (votingId in this.state.voters) {
-              voters[votingId] += 1;
-            } else {
-              voters[votingId] = 1;
-            }
+            voters += 1;
             this.setState({voters: voters});
-          }, err => (console.log(err)));
+          }, 
+            err => (
+              console.log(err)
+            )
+          );
+        }
+
+        handleOptionChange(e, qId) {
+          var target = e.target;
+          var value = target.value;
+
+          var answers = this.state.answers;
+          answers[qId] = value;
+          this.setState({
+            answers: answers
+          });
+        }
+
+        RefreshVoting(e) {
+          e.preventDefault();
+          this.forceUpdate(() => {
+            console.log("Updated...");
+          });
+        }
+
+        render() {
+          return (
+            <div className="card card-body mt-3">
+              <div className="container-fluid">
+                <div className="row">
+                  <div className="col-md-10">
+                    id: {this.state.voting.Id}, проголосовать до {formatDate(this.state.voting.Deadline)}
+                  </div>
+                  <div className="col-md-2">
+                      <a href="#" onClick={(e) => this.RefreshVoting(e)}>Обновить</a>
+                  </div>
+                </div>  
+              </div>
+              <ul className="list-group border-0">
+                {this.state.voting.Questions.map(q => (
+                  <li className="list-group-item border-0" key={q.Id}>{q.Name}
+                    <select className="form-control" name={q.Id} value={this.getSelect(q)} onChange={(e) => this.handleOptionChange(e, q.Id)}>
+                      {q.Options.map(o => (<option key={o.Id} value={o.Id}>{o.Name}</option>))}
+                    </select>
+                  </li> 
+                ))} 
+              </ul>  
+              <div className="w-100">
+                <button type="button" className="btn btn-outline-info" onClick={(e) => this.handleVoteClick(e)}>Отправить</button>
+                <div className="float-right">Проголосовали человек: {this.state.voters}</div>
+              </div>
+            </div>)
+        }
+      }
+        
+      class Welcome extends React.Component {
+        constructor(props) {
+          super(props);
+          this.state = {
+            error: null,
+            isLoaded: false,
+            items: [],
+            voters: {}
+          };
+
+          //this.handleVoteClick = this.handleVoteClick.bind(this);
+          //this.handleOptionChange = this.handleOptionChange.bind(this);          
         }
 
         getSelect(votingId, questionId) {
@@ -243,22 +303,23 @@
             return (
               <div>
                 {items.map(item => (
-                  <div className="card card-body mt-3" key={item.Id}>
-                    id: {item.Id}, проголосовать до {formatDate(item.Deadline)} <br/>
-                    <ul className="list-group border-0">
-                      {item.Questions.map(q => (
-                        <li className="list-group-item border-0" key={q.Id}>{q.Name}
-                          <select className="form-control" name={q.Id} value={this.getSelect(item.Id, q.Id)} onChange={(e) => this.handleOptionChange(e, item.Id, q.Id)}>
-                            {q.Options.map(o => (<option key={o.Id} value={o.Id}>{o.Name} </option>))}
-                          </select>
-                        </li>
-                        ))}
-                    </ul>
-                    <div className="w-100">
-                      <button type="button" className="btn btn-outline-info" onClick={(e) => this.handleVoteClick(e, item.Id)}>Отправить</button>
-                      <div className="float-right">Проголосовали человек: {this.state.voters[item.Id]}</div>
-                    </div>
-                  </div>
+                  <Voting voting={item} key={item.Id} />
+                  // <div className="card card-body mt-3" key={item.Id}>
+                  //   id: {item.Id}, проголосовать до {formatDate(item.Deadline)} <br/>
+                  //   <ul className="list-group border-0">
+                  //     {item.Questions.map(q => (
+                  //       <li className="list-group-item border-0" key={q.Id}>{q.Name}
+                  //         <select className="form-control" name={q.Id} value={this.getSelect(item.Id, q.Id)} onChange={(e) => this.handleOptionChange(e, item.Id, q.Id)}>
+                  //           {q.Options.map(o => (<option key={o.Id} value={o.Id}>{o.Name} </option>))}
+                  //         </select>
+                  //       </li>
+                  //       ))}
+                  //   </ul>
+                  //   <div className="w-100">
+                  //     <button type="button" className="btn btn-outline-info" onClick={(e) => this.handleVoteClick(e, item.Id)}>Отправить</button>
+                  //     <div className="float-right">Проголосовали человек: {this.state.voters[item.Id]}</div>
+                  //   </div>
+                  // </div>
                 ))}
               </div>
             );

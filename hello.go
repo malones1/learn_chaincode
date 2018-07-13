@@ -7,12 +7,14 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"regexp"
 	"time"
+
 	"github.com/satori/go.uuid"
 	// "log"
-)
 
-import _ "net/http/pprof"
+	_ "net/http/pprof"
+)
 
 // Option ...
 type Option struct {
@@ -175,11 +177,20 @@ func main() {
 	// 	fmt.Println("Hello Go")
 	// 	log.Println(http.ListenAndServe("localhost:6060", nil))
 	// }()
-	
+
 	Init()
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/vote", HelloServer)
+	mux.HandleFunc("/vote", func(w http.ResponseWriter, req *http.Request) {
+		var re = regexp.MustCompile(`(?is)vote/(.+)`)
+		var str = `Vote/12345`
+
+		if len(re.FindStringIndex(str)) > 0 {
+			fmt.Println(re.FindString(str), "found at index", re.FindStringIndex(str)[0])
+		}
+
+		HelloServer(w, req)
+	})
 
 	mux.HandleFunc("/toVote", func(w http.ResponseWriter, req *http.Request) {
 		//io.WriteString(w, "Hello...")
@@ -207,8 +218,8 @@ func main() {
 				m := f.(map[string]interface{})
 
 				for _, v := range s.v {
-					if (v.Id == m["votingId"]) {
-						fmt.Printf("VotingId: %v, voters: %v\n", v.Id, v.Voters);
+					if v.Id == m["votingId"] {
+						fmt.Printf("VotingId: %v, voters: %v\n", v.Id, v.Voters)
 						v.Voters = append(v.Voters, Voter{"Roman", []Answer{}})
 					}
 				}
