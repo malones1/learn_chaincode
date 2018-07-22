@@ -72,13 +72,15 @@ func HelloServer(w http.ResponseWriter, req *http.Request) {
 
 // AddVoteHandler ...
 func AddVoteHandler(w http.ResponseWriter, req *http.Request) {
-	AddVote()
-	io.WriteString(w, "add vote...")
+	v := AddVote()
+	if b, err := json.Marshal(v); err == nil {
+		io.WriteString(w, string(b))
+	}
 	fmt.Println(req.Method)
 }
 
 // AddVote ...
-func AddVote() {
+func AddVote() Voting {
 	var v Voting
 	var qs [3]Question
 	// ---
@@ -94,6 +96,8 @@ func AddVote() {
 
 	v.Questions = qs[:3]
 	s.v = append(s.v, &v)
+
+	return v
 }
 
 func IndexHandler(w http.ResponseWriter, req *http.Request) {
@@ -123,6 +127,7 @@ func IndexHandler(w http.ResponseWriter, req *http.Request) {
 
 // +++
 
+// Init...
 func Init() {
 	if len(s.v) == 0 {
 		var v *Voting

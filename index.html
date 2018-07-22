@@ -25,67 +25,9 @@
     crossorigin="anonymous"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T"
     crossorigin="anonymous"></script>
-  <nav class="navbar navbar-expand-sm navbar-light" style="background-color: #ffffff;">
-    <a class="navbar-brand" href="#">
-      <img src="/static/svg/checklist.svg" width="20" height="20" class="d-inline-block" alt=""> Голосование
-    </a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo01" aria-controls="navbarTogglerDemo01"
-      aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
-      <ul class="navbar-nav mr-auto">
-        <li class="nav-item active">
-          <a class="nav-link" href="#">
-            Список
-            <span class="sr-only">(current)</span>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#" onclick="fetch(serverAddr() + '/add').then(() => {alert('Голосование успешно создано.')})">
-            Добавить</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">Отчет</a>
-        </li>
-      </ul>
-        <div class="dropdown">
-          <a class="mr-2" href="#collapseExample1" onclick="sidebarClick1();">
-            <img src="/static/svg/gear.svg" width="20" height="20" alt="">
-          </a>
-        </div>
-        <div class="dropdown">
-            <a href="#" data-toggle="dropdown" id="dropdownMenuLink1" aria-expanded="false">
-                <img src="/static/svg/person.svg" width="20" height="20" alt="">
-              </a>
-            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuLink1">
-              <a class="dropdown-item" href="#">Action</a>
-              <a class="dropdown-item" href="#">Another action</a>
-              <a class="dropdown-item" href="#">Something else here</a>
-            </div>
-          </div>
-    </div>
-  </nav>
-  <div id="sidebar1" class="sidebar" style="bottom: 0px;" onclick="sidebarClick();">
-    <button type="button" class="close mr-3 mt-3" aria-label="Close">
-      <span aria-hidden="true">&times;</span>
-    </button>
-  </div>
-  <div class="container-fluid bg">
-    <div class="row">
-      <div class="col-md-7 col-sm-7">
-        <div id="root" class="bg pb-3">
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="container-fluid bg">
-      <div class="row">
-        <div class="col-md-7 col-sm-7">
-            <div id="voting"></div>
-        </div>
-      </div>
-  </div>
+
+  <div id="root" class="bg pb-3"></div>
+
   <style type="text/css">
     @media only screen and (max-width: 768px) {
       .sidebar {
@@ -133,24 +75,150 @@
   </style>
   <script type="text/babel">
 
-      function sidebarClick() {
-        document.getElementById("sidebar1").style.width = "0";
-      }
-
-      function sidebarClick1() {
-        document.getElementById("sidebar1").style.width = "300px";
-      }
-
       function formatDate(d) {
         d = new Date(d);
         return d.toLocaleDateString();
       }
 
-      const serverAddr = function() {
+      class App extends React.Component {
+        constructor(props) {
+          super(props);
+          this.state = {
+
+          };
+        }
+
+        static serverAddr() {
           return "http://localhost:7777";
-          // return "http://192.168.34.60:7777";
+        }
+
+        sidebarClick() {
+          document.getElementById("sidebar1").style.width = "0";
+        }
+
+        sidebarClick1() {
+          document.getElementById("sidebar1").style.width = "300px";
+        }
+
+        addVoting(e) {
+          e.preventDefault();
+          fetch(App.serverAddr() + '/add')
+            .then(res => res.json())
+            .then((json) => {
+              this.state.items.push(json);
+              this.setState({
+                items: this.state.items
+              });
+            }
+            )
+            // this.state.items.push(this.state.items[this.state.items.length - 1]);
+            //   this.setState({
+            //     items: this.state.items
+            //   });
         }
         
+        getVotingList() {
+          return "Hello, World!"
+        }
+
+        componentDidMount() {
+          fetch(App.serverAddr() + "/vote", {method: 'GET'})
+          .then(res => res.json())
+          .then(
+            (result) => {
+              var answers = {}
+              var voters = {}
+              result.map(item => {
+                answers[item.Id] = {};
+                item.Questions.map(q => {
+                  answers[item.Id][q.Id] = q.Options.length > 0 ? q.Options[0].Id : undefined;  
+                });
+                voters[item.Id] = item.Voters.length;  
+              });
+              this.setState({
+                isLoaded: true,
+                items: result,
+                answers: answers,
+                voters: voters
+              });             
+            },
+            (error) => {
+              this.setState({
+                isLoaded: true,
+                error
+              });
+            }
+          );
+        }
+
+        render() {
+          return (
+            <div>
+              <nav className="navbar navbar-expand-sm navbar-light" style={{backgroundColor: "#ffffff"}}>
+                <a className="navbar-brand" href="#">
+                  <img src="/static/svg/checklist.svg" width="20" height="20" className="d-inline-block" alt=""/> Голосование
+                </a>
+                <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo01" aria-controls="navbarTogglerDemo01"
+                  aria-expanded="false" aria-label="Toggle navigation">
+                  <span className="navbar-toggler-icon"></span>
+                </button>
+                <div className="collapse navbar-collapse" id="navbarTogglerDemo01">
+                  <ul className="navbar-nav mr-auto">
+                    <li className="nav-item active">
+                      <a className="nav-link" href="#">
+                        Список
+                        <span className="sr-only">(current)</span>
+                      </a>
+                    </li>
+                    <li className="nav-item">
+                      <a className="nav-link" href="#" onClick={(e) => this.addVoting(e)}>
+                        Добавить</a>
+                    </li>
+                    <li className="nav-item">
+                      <a className="nav-link" href="#">Отчет</a>
+                    </li>
+                  </ul>
+                  <div className="dropdown">
+                    <a className="mr-2" href="#collapseExample1" onClick={(e) => this.sidebarClick1(e)}>
+                      <img src="/static/svg/gear.svg" width="20" height="20" alt=""/>
+                    </a>
+                  </div>
+                  <div className="dropdown">
+                    <a href="#" data-toggle="dropdown" id="dropdownMenuLink1" aria-expanded="false">
+                      <img src="/static/svg/person.svg" width="20" height="20" alt=""/>
+                    </a>
+                    <div className="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuLink1">
+                      <a className="dropdown-item" href="#">Action</a>
+                      <a className="dropdown-item" href="#">Another action</a>
+                      <a className="dropdown-item" href="#">Something else here</a>
+                    </div>
+                  </div>
+                </div>
+              </nav>
+              <div id="sidebar1" className="sidebar" style={{bottom: "0px"}} onClick={(e) => this.sidebarClick(e)}>
+                <button type="button" className="close mr-3 mt-3" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div className="container-fluid bg">
+                <div className="row">
+                  <div className="col-md-7 col-sm-7">
+                    {this.state.isLoaded ? <Welcome votingList={this.state.items} /> : <span></span>}
+                  </div>
+                </div>
+              </div>
+              <div className="container-fluid bg">
+                <div className="row">
+                  <div className="col-md-7 col-sm-7">
+                      <div id="voting"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )
+        }
+      }
+
       class Voting extends React.Component {
         constructor(props) {
           super(props);
@@ -171,7 +239,7 @@
 
         handleVoteClick(e) {
           var data = JSON.stringify({username: "orticon", votingId: this.state.voting.Id, answers: this.state.answers})
-          fetch(serverAddr() + "/toVote", { method: 'POST', body: data })
+          fetch(App.serverAddr() + "/toVote", { method: 'POST', body: data })
           .then((response) => {
               return new Promise((res, rej) => {
                 if (response.ok) {
@@ -245,9 +313,11 @@
           super(props);
           this.state = {
             error: null,
-            isLoaded: false,
-            items: [],
-            voters: {}
+            //isLoaded: false,
+            //items: [],
+            isLoaded: true,
+            items: props.votingList,
+            //voters: {}
           };
 
           //this.handleVoteClick = this.handleVoteClick.bind(this);
@@ -263,35 +333,35 @@
           }
         }
 
-        componentDidMount() {
-          fetch(serverAddr() + "/vote", {method: 'GET'})
-          .then(res => res.json())
-          .then(
-            (result) => {
-              var answers = {}
-              var voters = {}
-              result.map(item => {
-                answers[item.Id] = {};
-                item.Questions.map(q => {
-                  answers[item.Id][q.Id] = q.Options.length > 0 ? q.Options[0].Id : undefined;  
-                });
-                voters[item.Id] = item.Voters.length;  
-              });
-              this.setState({
-                isLoaded: true,
-                items: result,
-                answers: answers,
-                voters: voters
-              });             
-            },
-            (error) => {
-              this.setState({
-                isLoaded: true,
-                error
-              });
-            }
-          );
-        }
+        // componentDidMount() {
+        //   fetch(App.serverAddr() + "/vote", {method: 'GET'})
+        //   .then(res => res.json())
+        //   .then(
+        //     (result) => {
+        //       var answers = {}
+        //       var voters = {}
+        //       result.map(item => {
+        //         answers[item.Id] = {};
+        //         item.Questions.map(q => {
+        //           answers[item.Id][q.Id] = q.Options.length > 0 ? q.Options[0].Id : undefined;  
+        //         });
+        //         voters[item.Id] = item.Voters.length;  
+        //       });
+        //       this.setState({
+        //         isLoaded: true,
+        //         items: result,
+        //         answers: answers,
+        //         voters: voters
+        //       });             
+        //     },
+        //     (error) => {
+        //       this.setState({
+        //         isLoaded: true,
+        //         error
+        //       });
+        //     }
+        //   );
+        // }
 
         render() {
           const { error, isLoaded, items } = this.state;
@@ -302,25 +372,12 @@
           } else {
             return (
               <div>
-                {items.map(item => (
-                  <Voting voting={item} key={item.Id} />
-                  // <div className="card card-body mt-3" key={item.Id}>
-                  //   id: {item.Id}, проголосовать до {formatDate(item.Deadline)} <br/>
-                  //   <ul className="list-group border-0">
-                  //     {item.Questions.map(q => (
-                  //       <li className="list-group-item border-0" key={q.Id}>{q.Name}
-                  //         <select className="form-control" name={q.Id} value={this.getSelect(item.Id, q.Id)} onChange={(e) => this.handleOptionChange(e, item.Id, q.Id)}>
-                  //           {q.Options.map(o => (<option key={o.Id} value={o.Id}>{o.Name} </option>))}
-                  //         </select>
-                  //       </li>
-                  //       ))}
-                  //   </ul>
-                  //   <div className="w-100">
-                  //     <button type="button" className="btn btn-outline-info" onClick={(e) => this.handleVoteClick(e, item.Id)}>Отправить</button>
-                  //     <div className="float-right">Проголосовали человек: {this.state.voters[item.Id]}</div>
-                  //   </div>
-                  // </div>
-                ))}
+                {
+                  items.map(item => (
+                    <Voting voting={item} key={item.Id} />
+                    )
+                  )
+                }
               </div>
             );
           }
@@ -329,7 +386,7 @@
       }
 
       ReactDOM.render(
-        <Welcome />,
+        <App />,
         document.getElementById('root')
       );
 
