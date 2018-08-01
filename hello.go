@@ -15,8 +15,8 @@ import (
 
 type ApiHandler string
 
-func (a *ApiHandler) ServeHTTP() {
-
+func (a ApiHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	fmt.Println("Hello from ApiHandler...")
 }
 
 
@@ -96,6 +96,8 @@ func main() {
 	app.CreateTestData()
 
 	mux := http.NewServeMux()
+	var a ApiHandler
+	mux.Handle("/test/", a)
 	mux.HandleFunc("/vote/", func(w http.ResponseWriter, req *http.Request) {
 		var re = regexp.MustCompile(`(?is)vote/(.+)`)
 		var url string = req.URL.String()
