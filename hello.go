@@ -13,10 +13,12 @@ import (
 	"time"
 )
 
-// State ...
-type State struct {
-	v []*Voting
+type ApiHandler string
+
+func (a *ApiHandler) ServeHTTP() {
+
 }
+
 
 // HelloServer ...
 func HelloServer(w http.ResponseWriter, req *http.Request) {
@@ -48,7 +50,7 @@ func AddVote() Voting {
 	qs[2] = Question{GetUUID(), "Q3", []Option{Option{"1", "O1"}, Option{"2", "O2"}, Option{"3", "O3"}}}
 
 	v.Questions = qs[:3]
-	s.v = append(s.v, &v)
+	app.v = append(app.v, &v)
 
 	return v
 }
@@ -78,49 +80,9 @@ func indexHandler(w http.ResponseWriter, req *http.Request) {
 	io.WriteString(w, string(bs))
 }
 
-// +++
-
-// Init ...
-func Init() {
-	if len(s.v) == 0 {
-		var v *Voting
-
-		// ---
-		v = new(Voting)
-		v.ID = GetUUID()
-		v.Name = "V1"
-		v.Deadline = time.Now()
-		v.Voters = []Voter{}
-
-		v.Questions = []Question{
-			Question{GetUUID(), "123Q1", []Option{Option{"1", "O1"}, Option{"2", "O2"}, Option{"3", "O3"}}},
-			Question{GetUUID(), "123Q2", []Option{Option{"1", "O1"}, Option{"2", "O2"}, Option{"3", "O3"}}},
-			Question{GetUUID(), "123Q3", []Option{Option{"1", "O1"}, Option{"2", "O2"}, Option{"3", "O3"}}},
-		}
-		s.v = append(s.v, v)
-		// +++
-
-		// ---
-		v = new(Voting)
-		v.ID = GetUUID()
-		v.Name = "V2"
-		v.Deadline = time.Now()
-		v.Voters = []Voter{}
-
-		v.Questions = []Question{
-			Question{GetUUID(), "456Q1", []Option{Option{"1", "O1"}, Option{"2", "O2"}, Option{"3", "O3"}}},
-			Question{GetUUID(), "456Q2", []Option{Option{"1", "O1"}, Option{"2", "O2"}, Option{"3", "O3"}}},
-			Question{GetUUID(), "456Q3", []Option{Option{"1", "O1"}, Option{"2", "O2"}, Option{"3", "O3"}}},
-		}
-		s.v = append(s.v, v)
-		// +++
-
-	}
-}
-
 // 1
 func getJSON() []byte {
-	b, err := json.Marshal(s.v)
+	b, err := json.Marshal(app.v)
 	if err == nil {
 		return b
 	}
@@ -128,24 +90,22 @@ func getJSON() []byte {
 	return []byte("")
 }
 
-var s = new(State)
+var app State = State{}
 
 func main() {
-
-	// go func() {
-	// 	fmt.Println("Hello Go")
-	// 	log.Println(http.ListenAndServe("localhost:6060", nil))
-	// }()
-
-	Init()
+	app.CreateTestData()
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/vote", func(w http.ResponseWriter, req *http.Request) {
+	mux.HandleFunc("/vote/", func(w http.ResponseWriter, req *http.Request) {
 		var re = regexp.MustCompile(`(?is)vote/(.+)`)
-		var str = `Vote/12345`
+		var url string = req.URL.String()
+		fmt.Printf("%v\n", req.RequestURI)
 
-		if len(re.FindStringIndex(str)) > 0 {
-			fmt.Println(re.FindString(str), "found at index", re.FindStringIndex(str)[0])
+		if len(re.FindStringIndex(url)) > 0 {
+			fmt.Println(re.FindString(url), "found at index", re.FindStringIndex(url)[0])
+			http.NotFound(w, req)
+
+			return
 		}
 
 		HelloServer(w, req)
@@ -176,7 +136,7 @@ func main() {
 			} else {
 				m := f.(map[string]interface{})
 
-				for _, v := range s.v {
+				for _, v := range app.v {
 					if v.ID == m["votingId"] {
 						fmt.Printf("VotingId: %v, voters: %v\n", v.ID, v.Voters)
 						v.Voters = append(v.Voters, Voter{"Roman", []Answer{}})

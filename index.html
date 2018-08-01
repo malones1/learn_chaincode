@@ -128,11 +128,11 @@
               var answers = {}
               var voters = {}
               result.map(item => {
-                answers[item.Id] = {};
+                answers[item.ID] = {};
                 item.Questions.map(q => {
-                  answers[item.Id][q.Id] = q.Options.length > 0 ? q.Options[0].Id : undefined;  
+                  answers[item.ID][q.ID] = q.Options.length > 0 ? q.Options[0].ID : undefined;  
                 });
-                voters[item.Id] = item.Voters.length;  
+                voters[item.ID] = item.Voters.length;  
               });
               this.setState({
                 isLoaded: true,
@@ -323,15 +323,15 @@
         }
 
         getSelect(question) {
-          if (question.Id in this.state.answers) {
-            return this.state.answers[question.Id];
+          if (question.ID in this.state.answers) {
+            return this.state.answers[question.ID];
           } else {
-            return question.Options.length > 0 ? question.Options[0].Id : "*";
+            return question.Options.length > 0 ? question.Options[0].ID : "*";
           }
         }
 
         handleVoteClick(e) {
-          var data = JSON.stringify({username: "orticon", votingId: this.state.voting.Id, answers: this.state.answers})
+          var data = JSON.stringify({username: "orticon", votingId: this.state.voting.ID, answers: this.state.answers})
           fetch(App.serverAddr() + "/toVote", { method: 'POST', body: data })
           .then((response) => {
               return new Promise((res, rej) => {
@@ -377,7 +377,7 @@
               <div className="container-fluid">
                 <div className="row">
                   <div className="col-md-10">
-                    id: {this.state.voting.Id}, проголосовать до {formatDate(this.state.voting.Deadline)}
+                    {this.state.voting.Name}, проголосовать до {formatDate(this.state.voting.Deadline)}
                   </div>
                   <div className="col-md-2">
                       <a href="#" onClick={(e) => this.RefreshVoting(e)}>Обновить</a>
@@ -386,9 +386,9 @@
               </div>
               <ul className="list-group border-0">
                 {this.state.voting.Questions.map(q => (
-                  <li className="list-group-item border-0" key={q.Id}>{q.Name}
-                    <select className="form-control" name={q.Id} value={this.getSelect(q)} onChange={(e) => this.handleOptionChange(e, q.Id)}>
-                      {q.Options.map(o => (<option key={o.Id} value={o.Id}>{o.Name}</option>))}
+                  <li className="list-group-item border-0" key={q.ID}>{q.Name}
+                    <select className="form-control" name={q.ID} value={this.getSelect(q)} onChange={(e) => this.handleOptionChange(e, q.ID)}>
+                      {q.Options.map(o => (<option key={o.ID} value={o.ID}>{o.Name}</option>))}
                     </select>
                   </li> 
                 ))} 
@@ -467,7 +467,7 @@
               <div>
                 {
                   items.map(item => (
-                    <Voting voting={item} key={item.Id} />
+                    <Voting voting={item} key={item.ID} />
                     )
                   )
                 }
