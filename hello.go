@@ -5,64 +5,17 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	_ "log"
 	"net/http"
+	_ "net/http/pprof"
 	"os"
 	"regexp"
 	"time"
-
-	"github.com/satori/go.uuid"
-	// "log"
-
-	_ "net/http/pprof"
 )
-
-// Option ...
-type Option struct {
-	Id   string
-	Name string
-}
-
-// Answer ...
-type Answer struct {
-	Id_question string
-	Id_option   string
-}
-
-// Voter ...
-type Voter struct {
-	Name    string
-	Answers []Answer
-}
-
-// Question ...
-type Question struct {
-	Id      string
-	Name    string
-	Options []Option
-}
-
-// Voting ...
-type Voting struct {
-	Id        string
-	Name      string
-	Deadline  time.Time
-	Questions []Question
-	Voters    []Voter
-}
 
 // State ...
 type State struct {
 	v []*Voting
-}
-
-func getUUID() string {
-	u, err := uuid.NewV4()
-	if err != nil {
-		fmt.Printf("Something went wrong: %s", err)
-		return ""
-	} else {
-		return u.String()
-	}
 }
 
 // HelloServer ...
@@ -85,14 +38,14 @@ func AddVote() Voting {
 	var qs [3]Question
 	// ---
 	v = Voting{}
-	v.Id = getUUID()
+	v.ID = GetUUID()
 	v.Name = "_V1"
 	v.Deadline = time.Now()
 	v.Voters = []Voter{}
 
-	qs[0] = Question{getUUID(), "Q1", []Option{Option{"1", "O1"}, Option{"2", "O2"}, Option{"3", "O3"}}}
-	qs[1] = Question{getUUID(), "Q2", []Option{Option{"1", "O1"}, Option{"2", "O2"}, Option{"3", "O3"}}}
-	qs[2] = Question{getUUID(), "Q3", []Option{Option{"1", "O1"}, Option{"2", "O2"}, Option{"3", "O3"}}}
+	qs[0] = Question{GetUUID(), "Q1", []Option{Option{"1", "O1"}, Option{"2", "O2"}, Option{"3", "O3"}}}
+	qs[1] = Question{GetUUID(), "Q2", []Option{Option{"1", "O1"}, Option{"2", "O2"}, Option{"3", "O3"}}}
+	qs[2] = Question{GetUUID(), "Q3", []Option{Option{"1", "O1"}, Option{"2", "O2"}, Option{"3", "O3"}}}
 
 	v.Questions = qs[:3]
 	s.v = append(s.v, &v)
@@ -100,7 +53,7 @@ func AddVote() Voting {
 	return v
 }
 
-func IndexHandler(w http.ResponseWriter, req *http.Request) {
+func indexHandler(w http.ResponseWriter, req *http.Request) {
 	file, err := os.Open("index.html")
 	if err != nil {
 		return
@@ -127,37 +80,37 @@ func IndexHandler(w http.ResponseWriter, req *http.Request) {
 
 // +++
 
-// Init...
+// Init ...
 func Init() {
 	if len(s.v) == 0 {
 		var v *Voting
 
 		// ---
 		v = new(Voting)
-		v.Id = getUUID()
+		v.ID = GetUUID()
 		v.Name = "V1"
 		v.Deadline = time.Now()
 		v.Voters = []Voter{}
 
 		v.Questions = []Question{
-			Question{getUUID(), "123Q1", []Option{Option{"1", "O1"}, Option{"2", "O2"}, Option{"3", "O3"}}},
-			Question{getUUID(), "123Q2", []Option{Option{"1", "O1"}, Option{"2", "O2"}, Option{"3", "O3"}}},
-			Question{getUUID(), "123Q3", []Option{Option{"1", "O1"}, Option{"2", "O2"}, Option{"3", "O3"}}},
+			Question{GetUUID(), "123Q1", []Option{Option{"1", "O1"}, Option{"2", "O2"}, Option{"3", "O3"}}},
+			Question{GetUUID(), "123Q2", []Option{Option{"1", "O1"}, Option{"2", "O2"}, Option{"3", "O3"}}},
+			Question{GetUUID(), "123Q3", []Option{Option{"1", "O1"}, Option{"2", "O2"}, Option{"3", "O3"}}},
 		}
 		s.v = append(s.v, v)
 		// +++
 
 		// ---
 		v = new(Voting)
-		v.Id = getUUID()
+		v.ID = GetUUID()
 		v.Name = "V2"
 		v.Deadline = time.Now()
 		v.Voters = []Voter{}
 
 		v.Questions = []Question{
-			Question{getUUID(), "456Q1", []Option{Option{"1", "O1"}, Option{"2", "O2"}, Option{"3", "O3"}}},
-			Question{getUUID(), "456Q2", []Option{Option{"1", "O1"}, Option{"2", "O2"}, Option{"3", "O3"}}},
-			Question{getUUID(), "456Q3", []Option{Option{"1", "O1"}, Option{"2", "O2"}, Option{"3", "O3"}}},
+			Question{GetUUID(), "456Q1", []Option{Option{"1", "O1"}, Option{"2", "O2"}, Option{"3", "O3"}}},
+			Question{GetUUID(), "456Q2", []Option{Option{"1", "O1"}, Option{"2", "O2"}, Option{"3", "O3"}}},
+			Question{GetUUID(), "456Q3", []Option{Option{"1", "O1"}, Option{"2", "O2"}, Option{"3", "O3"}}},
 		}
 		s.v = append(s.v, v)
 		// +++
@@ -170,14 +123,15 @@ func getJSON() []byte {
 	b, err := json.Marshal(s.v)
 	if err == nil {
 		return b
-	} else {
-		return []byte("")
 	}
+
+	return []byte("")
 }
 
 var s = new(State)
 
 func main() {
+
 	// go func() {
 	// 	fmt.Println("Hello Go")
 	// 	log.Println(http.ListenAndServe("localhost:6060", nil))
@@ -223,8 +177,8 @@ func main() {
 				m := f.(map[string]interface{})
 
 				for _, v := range s.v {
-					if v.Id == m["votingId"] {
-						fmt.Printf("VotingId: %v, voters: %v\n", v.Id, v.Voters)
+					if v.ID == m["votingId"] {
+						fmt.Printf("VotingId: %v, voters: %v\n", v.ID, v.Voters)
 						v.Voters = append(v.Voters, Voter{"Roman", []Answer{}})
 					}
 				}
@@ -240,7 +194,7 @@ func main() {
 		if req.URL.Path != "/" {
 			http.NotFound(w, req)
 		} else {
-			IndexHandler(w, req)
+			indexHandler(w, req)
 		}
 	})
 	mux.HandleFunc("/add", AddVoteHandler)
