@@ -22,6 +22,7 @@ func (a ApiHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 // HelloServer ...
 func HelloServer(w http.ResponseWriter, req *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	io.WriteString(w, string(getJSON()))
 }
 
