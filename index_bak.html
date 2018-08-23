@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Голосование</title>
+  <script src="https://unpkg.com/react@16/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+
+  <!-- Don't use this in production: -->
+  <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB"
+    crossorigin="anonymous">
+</head>
+
+<body>
+  <!-- Optional JavaScript -->
+  <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+    crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+    crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T"
+    crossorigin="anonymous"></script>
+
+  <div id="root" class="bg pb-3"></div>
+
+  <style type="text/css">
+    @media only screen and (max-width: 768px) {
+      .sidebar {
+        background-color: aqua;
+      }
+    }
+
+    @media only screen and (min-width: 768px) {
+      .sidebar {
+        background-color: #fff;
+      }
+    }
+
+    .w-100 {
+      width: 100px;
+    }
+
+    .bg {
+      background-color: #e6e6e6;
+    }
+
+    div.w-100 {
+      padding-left: 1.25rem;
+    }
+
+    html {
+      background-color: #e6e6e6;
+    }
+
+    .sidebar {
+      transition: 0.5s;
+      height: 100%;
+      position: fixed;
+      right: 0px;
+      width: 0px;
+      z-index: 1;
+      overflow-x: hidden;
+    }
+
+    .w-100>div {
+      padding-top: 6px;
+      margin-right: 23px;
+    }
+  </style>
+  <script type="text/babel">
+
+      function formatDate(d) {
+        d = new Date(d);
+        return d.toLocaleDateString();
+      }
+
+      class App extends React.Component {
+        constructor(props) {
+          super(props);
+          this.state = {
+
+          };
+        }
+
+        static serverAddr() {
+          return "http://localhost:7777";
+        }
+
+        sidebarClick() {
+          document.getElementById("sidebar1").style.width = "0";
+        }
+
+        sidebarClick1() {
+          document.getElementById("sidebar1").style.width = "300px";
+        }
+
+        addVoting(e) {
+          e.preventDefault();
+          fetch(App.serverAddr() + '/add')
+            .then(res => res.json())
+            .then((json) => {
+              this.state.items.push(json);
+              this.setState({
+                items: this.state.items
+              });
+            }
+            )
+            // this.state.items.push(this.state.items[this.state.items.length - 1]);
+            //   this.setState({
+            //     items: this.state.items
+            //   });
+        }
+        
+        getVotingList() {
+          return "Hello, World!"
+        }
+
+        componentDidMount() {
+          fetch(App.serverAddr() + "/vote", {method: 'GET'})
+          .then(res => res.json())
+          .then(
+            (result) => {
+              var answers = {}
+              var voters = {}
+              result.map(item => {
+                answers[item.ID] = {};
+                item.Questions.map(q => {
+                  answers[item.ID][q.ID] = q.Options.length > 0 ? q.Options[0].ID : undefined;  
+                });
+                voters[item.ID] = item.Voters.length;  
+              });
+              this.setState({
+                isLoaded: true,
+                items: result,
+                answers: answers,
+                voters: voters
+              });             
+            },
+            (error) => {
+              this.setState({
+                isLoaded: true,
+                error
+              });
+            }
+          );
+        }
+
+        render() {
+          return (
+            <div>
+              <nav className="navbar navbar-expand-sm navbar-light" style={{backgroundColor: "#ffffff"}}>
+                <a className="navbar-brand" href="#">
+                  <img src="/static/svg/checklist.svg" width="20" height="20" className="d-inline-block" alt=""/> Голосование
+                </a>
+                <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo01" aria-controls="navbarTogglerDemo01"
+                  aria-expanded="false" aria-label="Toggle navigation">
+                  <span className="navbar-toggler-icon"></span>
+                </button>
+                <div className="collapse navbar-collapse" id="navbarTogglerDemo01">
+                  <ul className="navbar-nav mr-auto">
+                    <li className="nav-item active">
+                      <a className="nav-link" href="#">
+                        Список
+                        <span className="sr-only">(current)</span>
+                      </a>
+                    </li>
+                    <li className="nav-item">
+                      <a className="nav-link" href="#" onClick={(e) => this.addVoting(e)}>
+                        Добавить</a>
+                    </li>
+                    <li className="nav-item">
+                      <a className="nav-link" href="#">Отчет</a>
+                    </li>
+                  </ul>
+                  <div className="dropdown">
+                    <a className="mr-2" href="#collapseExample1" onClick={(e) => this.sidebarClick1(e)}>
+                      <img src="/static/svg/gear.svg" width="20" height="20" alt=""/>
+                    </a>
+                  </div>
+                  <div className="dropdown">
+                    <a href="#" data-toggle="dropdown" id="dropdownMenuLink1" aria-expanded="false">
+                      <img src="/static/svg/person.svg" width="20" height="20" alt=""/>
+                    </a>
+                    <div className="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuLink1">
+                      <a className="dropdown-item" href="#">Action</a>
+                      <a className="dropdown-item" href="#">Another action</a>
+                      <a className="dropdown-item" href="#">Something else here</a>
+                    </div>
+                  </div>
+                </div>
+              </nav>
+              <div id="sidebar1" className="sidebar" style={{bottom: "0px"}} onClick={(e) => this.sidebarClick(e)}>
+                <button type="button" className="close mr-3 mt-3" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div className="container-fluid bg">
+                <div className="row">
+                  <div className="col-md-7 col-sm-7">
+                    {this.state.isLoaded ? <Welcome votingList={this.state.items} /> : <span></span>}
+                  </div>
+                </div>
+              </div>
+              <div className="container-fluid bg">
+                <div className="row">
+                  <div className="col-md-7 col-sm-7">
+                      <div id="voting"></div>
+                  </div>
+                </div>
+              </div>
+              <AddVotingForm />
+            </div>
+          )
+        }
+      }
+
+      class Question extends React.Component {
+        constructor(props) {
+          super(props);
+        }
+
+        QuestionNameOnChange(e) {
+          this.props.QuestionNameOnChange(e);
+        }
+
+        OptionsListOnChange(e) {
+          this.props.OptionsListOnChange(e);
+        }
+
+        render() {
+          return (
+            <div className="form-group">
+              <input type="email" name={this.props.i} value={this.props.item.name} onChange={(e) => this.QuestionNameOnChange(e)} className="form-control mb-3" id={"questionName" + (this.props.i)} key={"questionName" + (this.props.i)} aria-describedby="emailHelp" placeholder={"Вопрос " + (this.props.i)} />
+              <input type="email" name={this.props.i} value={this.props.item.options} onChange={(e) => this.OptionsListOnChange(e)} className="form-control" aria-describedby="emailHelp" id={"questionOptions" + (this.props.i)} key={"questionOptions" + (this.props.i)} placeholder={"Варианты ответов на вопрос " + (this.props.i)} />
+            </div>
+          )
+        }
+      }
+
+      class AddVotingForm extends React.Component {
+        constructor(props) {
+          super(props);
+          this.state = {
+            questions: []
+          };
+
+          this.AddQuestionOnClick = this.AddQuestionOnClick.bind(this);
+        }
+
+        AddQuestionOnClick(e) {
+          e.preventDefault();
+          var questions = this.state.questions;
+          questions.push({
+            id: questions.length,
+            name: "",
+            options: ""
+          });
+          this.setState({questions: questions});
+        }
+
+        PostOnClick(e) {
+          e.preventDefault();
+          console.log(this.state);
+        }
+
+        QuestionNameOnChange(e) {
+          var questions = this.state.questions;
+          questions[parseInt(e.target.name) - 1].name = e.target.value;
+          this.setState({questions});
+        }
+
+        OptionsListOnChange(e) {
+          var questions = this.state.questions;
+          questions[parseInt(e.target.name) - 1].options = e.target.value;
+          this.setState({questions});
+        }
+
+        render() {
+          return (
+            <div className="container-fluid">
+              <div className="row">
+                <div className="col-md-7 col-sm-7">
+                  <div className="card card-body mt-3">
+                  <form>
+                    <div className="form-group">
+                      <label htmlFor="exampleInputEmail1">Тема голосования</label>
+                      <input type="email" className="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Введите тему голосования" />
+                      <small id="emailHelp" className="form-text text-muted"></small>
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="exampleInputPassword1">Срок голосования</label>
+                      <input type="password" className="form-control" id="exampleInputPassword1" placeholder="Проголосовать до" />
+                    </div>
+                    {this.state.questions.map((item, i, arr) => 
+                      (<Question key={i} item={item} i={i+1} QuestionNameOnChange={(e) => this.QuestionNameOnChange(e)} OptionsListOnChange={(e) => this.OptionsListOnChange(e)} />)
+                    )}
+                    <button type="button" className="btn btn-outline-secondary mb-3 btn-block" 
+                          onClick={(e) => this.AddQuestionOnClick(e)}>Добавить вопрос</button>
+                    <button type="button" className="btn btn-outline-secondary mb-3 btn-block" 
+                          onClick={(e) => this.PostOnClick(e)}>Сохранить</button>
+                  </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )
+        }
+      }
+
+      class Voting extends React.Component {
+        constructor(props) {
+          super(props);
+          this.state = {
+            voting: this.props.voting,
+            answers: {},
+            voters: this.props.voting.Voters.length
+          };
+        }
+
+        getSelect(question) {
+          if (question.ID in this.state.answers) {
+            return this.state.answers[question.ID];
+          } else {
+            return question.Options.length > 0 ? question.Options[0].ID : "*";
+          }
+        }
+
+        handleVoteClick(e) {
+          var data = JSON.stringify({username: "orticon", votingId: this.state.voting.ID, answers: this.state.answers})
+          fetch(App.serverAddr() + "/toVote", { method: 'POST', body: data })
+          .then((response) => {
+              return new Promise((res, rej) => {
+                if (response.ok) {
+                  res();
+                } else {
+                  rej("Ошибка");
+                }
+              });
+          })
+          .then(() => {
+            var voters = this.state.voters;
+            voters += 1;
+            this.setState({voters: voters});
+          }, 
+            err => (
+              console.log(err)
+            )
+          );
+        }
+
+        handleOptionChange(e, qId) {
+          var target = e.target;
+          var value = target.value;
+
+          var answers = this.state.answers;
+          answers[qId] = value;
+          this.setState({
+            answers: answers
+          });
+        }
+
+        RefreshVoting(e) {
+          e.preventDefault();
+          this.forceUpdate(() => {
+            console.log("Updated...");
+          });
+        }
+
+        render() {
+          return (
+            <div className="card card-body mt-3">
+              <div className="container-fluid">
+                <div className="row">
+                  <div className="col-md-10">
+                    {this.state.voting.Name}, проголосовать до {formatDate(this.state.voting.Deadline)}
+                  </div>
+                  <div className="col-md-2">
+                      <a href="#" onClick={(e) => this.RefreshVoting(e)}>Обновить</a>
+                  </div>
+                </div>  
+              </div>
+              <ul className="list-group border-0">
+                {this.state.voting.Questions.map(q => (
+                  <li className="list-group-item border-0" key={q.ID}>{q.Name}
+                    <select className="form-control" name={q.ID} value={this.getSelect(q)} onChange={(e) => this.handleOptionChange(e, q.ID)}>
+                      {q.Options.map(o => (<option key={o.ID} value={o.ID}>{o.Name}</option>))}
+                    </select>
+                  </li> 
+                ))} 
+              </ul>  
+              <div className="w-100">
+                <button type="button" className="btn btn-outline-info" onClick={(e) => this.handleVoteClick(e)}>Отправить</button>
+                <div className="float-right">Проголосовали человек: {this.state.voters}</div>
+              </div>
+            </div>)
+        }
+      }
+        
+      class Welcome extends React.Component {
+        constructor(props) {
+          super(props);
+          this.state = {
+            error: null,
+            //isLoaded: false,
+            //items: [],
+            isLoaded: true,
+            items: props.votingList,
+            //voters: {}
+          };
+
+          //this.handleVoteClick = this.handleVoteClick.bind(this);
+          //this.handleOptionChange = this.handleOptionChange.bind(this);          
+        }
+
+        getSelect(votingId, questionId) {
+          var value = this.state.answers[votingId];
+          if (value == undefined) {
+            return undefined; 
+          } else {
+            return value[questionId];
+          }
+        }
+
+        // componentDidMount() {
+        //   fetch(App.serverAddr() + "/vote", {method: 'GET'})
+        //   .then(res => res.json())
+        //   .then(
+        //     (result) => {
+        //       var answers = {}
+        //       var voters = {}
+        //       result.map(item => {
+        //         answers[item.Id] = {};
+        //         item.Questions.map(q => {
+        //           answers[item.Id][q.Id] = q.Options.length > 0 ? q.Options[0].Id : undefined;  
+        //         });
+        //         voters[item.Id] = item.Voters.length;  
+        //       });
+        //       this.setState({
+        //         isLoaded: true,
+        //         items: result,
+        //         answers: answers,
+        //         voters: voters
+        //       });             
+        //     },
+        //     (error) => {
+        //       this.setState({
+        //         isLoaded: true,
+        //         error
+        //       });
+        //     }
+        //   );
+        // }
+
+        render() {
+          const { error, isLoaded, items } = this.state;
+          if (error) {
+            return <div>Error: {error.message}</div>;
+          } else if (!isLoaded) {
+            return <div>Loading...</div>;
+          } else {
+            return (
+              <div>
+                {
+                  items.map(item => (
+                    <Voting voting={item} key={item.ID} />
+                    )
+                  )
+                }
+              </div>
+            );
+          }
+        }
+
+      }
+
+      ReactDOM.render(
+        <App />,
+        document.getElementById('root')
+      );
+
+      /*import {one} from "logic";*/
+
+    </script>
+  <!--
+      Note: this page is a great way to try React but it's not suitable for production.
+      It slowly compiles JSX with Babel in the browser and uses a large development build of React.
+
+      Read this section for a production-ready setup with JSX:
+      http://reactjs.org/docs/add-react-to-a-website.html#add-jsx-to-a-project
+
+      In a larger project, you can use an integrated toolchain that includes JSX instead:
+      http://reactjs.org/docs/create-a-new-react-app.html
+
+      You can also use React without JSX, in which case you can remove Babel:
+      https://reactjs.org/docs/react-without-jsx.html
+    -->
+</body>
+
+</html>

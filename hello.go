@@ -13,21 +13,21 @@ import (
 	"time"
 )
 
-type ApiHandler string
+// APIHandler ...
+type APIHandler string
 
-func (a ApiHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+func (a APIHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	fmt.Println("Hello from ApiHandler...")
 }
 
-
 // HelloServer ...
 func HelloServer(w http.ResponseWriter, req *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
 	io.WriteString(w, string(getJSON()))
 }
 
 // AddVoteHandler ...
 func AddVoteHandler(w http.ResponseWriter, req *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	v := AddVote()
 	if b, err := json.Marshal(v); err == nil {
 		io.WriteString(w, string(b))
@@ -91,17 +91,19 @@ func getJSON() []byte {
 	return []byte("")
 }
 
-var app State = State{}
+var app = State{}
 
 func main() {
 	app.CreateTestData()
 
 	mux := http.NewServeMux()
-	var a ApiHandler
+	var a APIHandler
 	mux.Handle("/test/", a)
 	mux.HandleFunc("/vote/", func(w http.ResponseWriter, req *http.Request) {
 		var re = regexp.MustCompile(`(?is)vote/(.+)`)
-		var url string = req.URL.String()
+		fmt.Println("Hello vote...")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		var url = req.URL.String()
 		fmt.Printf("%v\n", req.RequestURI)
 
 		if len(re.FindStringIndex(url)) > 0 {
@@ -115,6 +117,7 @@ func main() {
 	})
 
 	mux.HandleFunc("/toVote", func(w http.ResponseWriter, req *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 		//io.WriteString(w, "Hello...")
 
 		if req.Method == "POST" {
@@ -162,5 +165,6 @@ func main() {
 	})
 	mux.HandleFunc("/add", AddVoteHandler)
 	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
+	mux.Handle("/dist/", http.StripPrefix("/dist/", http.FileServer(http.Dir("dist"))))
 	http.ListenAndServe(":7777", mux)
 }

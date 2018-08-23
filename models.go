@@ -11,6 +11,7 @@ type Voting struct {
 	Voters    []Voter
 }
 
+// SetID ...
 func (v *Voting) SetID() {
 	v.ID = GetUUID()
 }
@@ -45,6 +46,7 @@ type State struct {
 	v []*Voting
 }
 
+// CreateTestData ...
 func (s *State) CreateTestData() {
 	if len(s.v) == 0 {
 		var v Voting
@@ -54,30 +56,30 @@ func (s *State) CreateTestData() {
 
 		v.Questions = []Question{
 			Question{
-				GetUUID(), 
-				"Какой объем оперативной памяти предпочтительнее?", 
+				GetUUID(),
+				"Какой объем оперативной памяти предпочтительнее?",
 				[]Option{
-					Option{"1", "4 Гб"}, 
-					Option{"2", "8 Гб"}, 
+					Option{"1", "4 Гб"},
+					Option{"2", "8 Гб"},
 					Option{"3", "Более 8 Гб"},
 				},
 			},
 			Question{
-				GetUUID(), 
-				"Фирма производитель?", 
+				GetUUID(),
+				"Фирма производитель?",
 				[]Option{
-					Option{"1", "Asus"}, 
-					Option{"2", "Acer"}, 
-					Option{"3", "Apple"}, 
+					Option{"1", "Asus"},
+					Option{"2", "Acer"},
+					Option{"3", "Apple"},
 					Option{"4", "Другие"},
 				},
 			},
 			Question{
-				GetUUID(), 
-				"Диагональ экрана?", 
+				GetUUID(),
+				"Диагональ экрана?",
 				[]Option{
-					Option{"1", "до 13\""}, 
-					Option{"2", "от 13\" до 14\""}, 
+					Option{"1", "до 13\""},
+					Option{"2", "от 13\" до 14\""},
 					Option{"3", "15\" и более"},
 				},
 			},
