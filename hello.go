@@ -28,32 +28,65 @@ func HelloServer(w http.ResponseWriter, req *http.Request) {
 // AddVoteHandler ...
 func AddVoteHandler(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	v := AddVote()
+
+	var buf = make([]byte, 4)
+	var b bytes.Buffer
+
+	for {
+		n, err := req.Body.Read(buf)
+		if n > 0 {
+			b.Write(buf[:n])
+		}
+
+		if err == io.EOF {
+			break
+		}
+	}
+
+	var f interface{}
+	err := json.Unmarshal(b.Bytes(), &f)
+
+	if err != nil {
+		return
+	}
+
+	const shortForm = "2006-01-02"
+
+	message := f.(map[string]interface{})
+	t, _ := time.Parse(shortForm, message["date"].(string))
+	var v = Voting{Name: message["name"].(string), Deadline: t}
+
+	// fmt.Printf("%v\n", *req)
+	// fmt.Printf("%v\n", b.String())
+	// fmt.Println("#########################")
+
+	AddVote(&v)
 	if b, err := json.Marshal(v); err == nil {
 		io.WriteString(w, string(b))
 	}
-	fmt.Println(req.Method)
+	// fmt.Println(req.Method)
 }
 
 // AddVote ...
-func AddVote() Voting {
-	var v Voting
-	var qs [3]Question
-	// ---
-	v = Voting{}
+func AddVote(v *Voting) {
+	// var qs [3]Question
+
 	v.ID = GetUUID()
-	v.Name = "_V1"
-	v.Deadline = time.Now()
+	// v.Name = "_V1"
+	// v.Deadline = time.Now()
 	v.Voters = []Voter{}
 
-	qs[0] = Question{GetUUID(), "Q1", []Option{Option{"1", "O1"}, Option{"2", "O2"}, Option{"3", "O3"}}}
-	qs[1] = Question{GetUUID(), "Q2", []Option{Option{"1", "O1"}, Option{"2", "O2"}, Option{"3", "O3"}}}
-	qs[2] = Question{GetUUID(), "Q3", []Option{Option{"1", "O1"}, Option{"2", "O2"}, Option{"3", "O3"}}}
+	// qs[0] = Question{GetUUID(), "Q1", []Option{Option{"1", "O1"}, Option{"2", "O2"}, Option{"3", "O3"}}}
+	// qs[1] = Question{GetUUID(), "Q2", []Option{Option{"1", "O1"}, Option{"2", "O2"}, Option{"3", "O3"}}}
+	// qs[2] = Question{GetUUID(), "Q3", []Option{Option{"1", "O1"}, Option{"2", "O2"}, Option{"3", "O3"}}}
 
-	v.Questions = qs[:3]
-	app.v = append(app.v, &v)
-
-	return v
+	// v.Questions = qs[:3]
+	v.Questions = []Question{
+		Question{GetUUID(), "Q1", []Option{Option{"1", "O1"}, Option{"2", "O2"}, Option{"3", "O3"}}},
+		Question{GetUUID(), "Q2", []Option{Option{"1", "O1"}, Option{"2", "O2"}, Option{"3", "O3"}}},
+		Question{GetUUID(), "Q3", []Option{Option{"1", "O1"}, Option{"2", "O2"}, Option{"3", "O3"}}},
+	}
+	app.v = append(app.v, v)
 }
 
 func indexHandler(w http.ResponseWriter, req *http.Request) {

@@ -1,0 +1,5 @@
+learn_chaincode.exe
+static/
+test/
+dist/
+logic.js
